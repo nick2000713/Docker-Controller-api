@@ -28,7 +28,6 @@ Docker Controller is a web-based tool for managing and controlling Docker contai
 Running the Container
 Start the container with the persistent data directory mounted to /app/data and pass the Docker socket:
 
-    ```bash
     docker run -d -p 5000:5000 \
       -v /mnt/user/appdata/docker-controller:/app/data \
       -v /var/run/docker.sock:/var/run/docker.sock \
