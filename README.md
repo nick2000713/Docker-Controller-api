@@ -188,11 +188,15 @@ Create a template switch to combine the status and control functionality:
 
 **Complete Example with State Override**
 
-    # Input Boolean to Override-State
-    input_boolean:
-      crafty_status_override:
-        name: "Crafty Status Override"
-        initial: off
+    # Input to Override-State
+    input_select:
+      crafty_command_override:
+        name: "Crafty Command Override"
+        options:
+          - none
+          - on
+          - off
+        initial: none
     
     # REST-Commands for Crafty
     rest_command:
@@ -238,22 +242,29 @@ Create a template switch to combine the status and control functionality:
           crafty_container:
             friendly_name: "Crafty Container"
             value_template: >
-              {% if is_state('input_boolean.crafty_status_override', 'on') %}
-                on
+              {% set override = states('input_select.crafty_command_override') %}
+              {% if override != 'none' %}
+                {{ override }}
               {% else %}
-                {{ is_state('sensor.crafty_status', 'running') }}
+                {% if is_state('sensor.crafty_status', 'running') %}
+                  on
+                {% else %}
+                  off
+                {% endif %}
               {% endif %}
             turn_on:
-              - service: input_boolean.turn_on
+              - service: input_select.select_option
                 data:
-                  entity_id: input_boolean.crafty_status_override
+                  entity_id: input_select.crafty_command_override
+                  option: on
               - service: rest_command.start_crafty
             turn_off:
-              - service: input_boolean.turn_off
+              - service: input_select.select_option
                 data:
-                  entity_id: input_boolean.crafty_status_override
+                  entity_id: input_select.crafty_command_override
+                  option: off
               - service: rest_command.stop_crafty
-
+    
 
 
 **Lovelace Dashboard**
