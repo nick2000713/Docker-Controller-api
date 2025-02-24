@@ -41,7 +41,7 @@ Start the container with the persistent data directory mounted to /app/data and 
       -v /var/run/docker.sock:/var/run/docker.sock \
       -e ADMIN_USERNAME=your_admin_username \
       -e ADMIN_PASSWORD=your_admin_password \
-      your_dockerhub_username/docker-controller:latest
+      anysale/docker-controller-api:latest
 
 ## Usage
 
