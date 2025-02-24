@@ -5,17 +5,25 @@ Docker Controller is a web-based tool for managing and controlling Docker contai
 ## Features
 
 - **Web UI**
-  - Start/Stop individual containers and entire groups
-  - Edit containers and groups, including setting order and delays for startup
-  - User management: create, edit, and delete users, manage wich user has the right to wich containers. 
-  - API key management integrated in the user editing screen (users can have their API key generated/updated)
-  - Container selection via checkboxes (for both group creation and user management)
+- Container & Group Control:
+  Start or stop individual containers or entire groups with a single click.
+- Advanced Management:
+  Edit containers and groups, set custom startup orders and delays to ensure dependencies (e.g. databases) are started before dependent services.
+- User Management:
+  Create, edit, and delete users. Assign specific containers to each user so that only authorized users can control certain containers.
+- API Key Management:
+  Generate and update API keys directly in the user management interface. This key is required for API calls and is used to verify that the user is allowed to control a given container.
+- Intuitive Selection:
+  Choose containers via checkboxes (both for group creation and user management) for a clearer, more efficient interface.
 
 - **REST API**
   - `/api/control` – Control a single container (start/stop)
   - `/api/status` – Retrieve the status of a single container
   - `/api/control_group` – Control all containers in a group (start/stop)
-  - `/api/group_status` – Retrieve the status of a group (e.g., running/total)
+  - `/api/group_status` – Retrieve the status of a group (e.g. number of running containers vs. total)
+- ***Access Control:***
+  All API endpoints validate the provided username and API key and ensure that a user can only control containers they are assigned to (unless the user is an admin).
+  Home Assistant Integration
 
 - **Home Assistant Integration**
   - RESTful commands and sensors for container and group control
