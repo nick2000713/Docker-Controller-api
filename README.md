@@ -5,10 +5,9 @@ Docker Controller is a web-based tool for managing and controlling Docker contai
 ## Features
 
 - **Web UI**
-  - Manage individual containers and container groups
   - Start/Stop individual containers and entire groups
   - Edit containers and groups, including setting order and delays for startup
-  - User management: create, edit, and delete users
+  - User management: create, edit, and delete users, manage wich user has the right to wich containers. 
   - API key management integrated in the user editing screen (users can have their API key generated/updated)
   - Container selection via checkboxes (for both group creation and user management)
 
@@ -84,9 +83,10 @@ You can integrate Docker Controller into Home Assistant using RESTful commands a
 
 REST Commands
 Add the following entries to your Home Assistant configuration.yaml (or a separate YAML file):
+CONTAINER_ID and GROUP_ID: Numeric IDs of the container or group. You find These when you EDIT the Container or Group in the URL.
 
     rest_command:
-    start_container:
+    start_<YOUR_NAME_OF_CONTAINER>:
         url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control"
         method: POST
         headers:
@@ -99,7 +99,7 @@ Add the following entries to your Home Assistant configuration.yaml (or a separa
             "action": "start"
           }
     
-      stop_container:
+      stop_<YOUR_NAME_OF_CONTAINER>:
         url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control"
         method: POST
         headers:
@@ -112,7 +112,7 @@ Add the following entries to your Home Assistant configuration.yaml (or a separa
             "action": "stop"
           }
     
-      start_group:
+      start_<YOUR_NAME_OF_CONTAINER>:
         url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control_group"
         method: POST
         headers:
@@ -125,7 +125,7 @@ Add the following entries to your Home Assistant configuration.yaml (or a separa
             "action": "start"
           }
     
-      stop_group:
+      stop_<YOUR_NAME_OF_GROUP>:
         url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control_group"
         method: POST
         headers:
@@ -137,11 +137,8 @@ Add the following entries to your Home Assistant configuration.yaml (or a separa
             "group_id": GROUP_ID,
             "action": "stop"
           }
-Replace the placeholders:
 
-<DOCKER_CONTROLLER_IP>: IP address of your Docker Controller.
-YOUR_USERNAME and YOUR_API_KEY: Credentials for your user.
-CONTAINER_ID and GROUP_ID: Numeric IDs of the container or group.
+
 
 **REST Sensors**
 Define REST sensors to monitor the status:
@@ -149,7 +146,7 @@ Define REST sensors to monitor the status:
     sensor:
       - platform: rest
         resource: "http://<DOCKER_CONTROLLER_IP>:5000/api/status?container_id=CONTAINER_ID&username=YOUR_USERNAME&api_key=YOUR_API_KEY"
-        name: "Crafty Status"
+        name: "YOUR_NAME_OF_STATUS"
         value_template: "{{ value_json.status }}"
         headers:
           Content-Type: application/json
@@ -157,7 +154,7 @@ Define REST sensors to monitor the status:
     
       - platform: rest
         resource: "http://<DOCKER_CONTROLLER_IP>:5000/api/group_status?group_id=GROUP_ID&username=YOUR_USERNAME&api_key=YOUR_API_KEY"
-        name: "Group Status"
+        name: "YOUR_NAME_OF_GROUP_STATUS"
         value_template: "{{ value_json.status }}"
         headers:
           Content-Type: application/json
@@ -168,14 +165,85 @@ Create a template switch to combine the status and control functionality:
     switch:
       - platform: template
         switches:
+          YOUR_NAME_OF_STATUS:
+            friendly_name: "NAME_OF_SWITCH"
+            value_template: "{{ is_state('sensor.<YOUR_NAME_OF_STATUS>', 'running') }}"
+            turn_on:
+              service: rest_command.start_<YOUR_NAME_OF_CONTAINER>
+            turn_off:
+              service: rest_command.stop_<YOUR_NAME_OF_CONTAINER>
+
+**Complete Example with State Override**
+
+    # Input Boolean to Override-State
+    input_boolean:
+      crafty_status_override:
+        name: "Crafty Status Override"
+        initial: off
+    
+    # REST-Commands for Crafty
+    rest_command:
+      start_crafty:
+        url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control"
+        method: POST
+        headers:
+          Content-Type: application/json
+        payload: >
+          {
+            "username": "YOUR_USERNAME",
+            "api_key": "YOUR_API_KEY",
+            "container_id": CONTAINER_ID,
+            "action": "start"
+          }
+      stop_crafty:
+        url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control"
+        method: POST
+        headers:
+          Content-Type: application/json
+        payload: >
+          {
+            "username": "YOUR_USERNAME",
+            "api_key": "YOUR_API_KEY",
+            "container_id": CONTAINER_ID,
+            "action": "stop"
+          }
+    
+    # REST-Sensor, status of crafty
+    sensor:
+      - platform: rest
+        resource: "http://<DOCKER_CONTROLLER_IP>:5000/api/status?container_id=CONTAINER_ID&username=YOUR_USERNAME&api_key=YOUR_API_KEY"
+        name: "crafty_status"
+        value_template: "{{ value_json.status }}"
+        headers:
+          Content-Type: application/json
+        scan_interval: 60
+    
+    # Template Switch, with Override and sensor status
+    switch:
+      - platform: template
+        switches:
           crafty_container:
             friendly_name: "Crafty Container"
-            value_template: "{{ is_state('sensor.crafty_status', 'running') }}"
+            value_template: >
+              {% if is_state('input_boolean.crafty_status_override', 'on') %}
+                on
+              {% else %}
+                {{ is_state('sensor.crafty_status', 'running') }}
+              {% endif %}
             turn_on:
-              service: rest_command.start_container
+              - service: input_boolean.turn_on
+                data:
+                  entity_id: input_boolean.crafty_status_override
+              - service: rest_command.start_crafty
             turn_off:
-              service: rest_command.stop_container
+              - service: input_boolean.turn_off
+                data:
+                  entity_id: input_boolean.crafty_status_override
+              - service: rest_command.stop_crafty
+
+
+
 **Lovelace Dashboard**
 Open your Home Assistant dashboard.
 Click on the three dots in the top-right corner and select "Edit Dashboard".
-Add an Entities Card and include your sensors (e.g., sensor.crafty_status) and template switches (e.g., switch.crafty_container).
+Add an Entities Card and include your sensors (e.g., sensor.YOUR_NAME_OF_STATUS) and template switches (e.g., switch.YOUR_NAME).
