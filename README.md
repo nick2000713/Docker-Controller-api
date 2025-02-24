@@ -1,27 +1,27 @@
 # Docker Controller
 
-Ein webbasierter Dienst zur Verwaltung und Steuerung von Docker-Containern. Mit dieser Anwendung kannst du Container (einzeln oder in Gruppen) starten, stoppen und überwachen – sowohl über die Web-Oberfläche als auch über eine REST-API, die sich ideal in Systeme wie Home Assistant integrieren lässt.
+Docker Controller is a web-based tool for managing and controlling Docker containers. The application offers a user-friendly interface to start, stop, and monitor individual containers or groups of containers. It also provides a REST API, making it easy to integrate with systems like Home Assistant.
 
 ## Features
 
-- **Web-UI:**
-  - Verwaltung von Containern und Gruppen
-  - Starten/Stoppen einzelner Container und ganzer Gruppen
-  - Bearbeitung von Containern und Gruppen inklusive Reihenfolge und Verzögerung
-  - Benutzerverwaltung (Erstellung, Bearbeitung und Löschung von Benutzern)
-  - API-Key-Verwaltung in der Benutzerbearbeitung – API-Key kann direkt neu generiert werden
-  - Auswahl der Container per Checkbox (sowohl bei Gruppen als auch in der Benutzerverwaltung)
+- **Web UI**
+  - Manage individual containers and container groups
+  - Start/Stop individual containers and entire groups
+  - Edit containers and groups, including setting order and delays for startup
+  - User management: create, edit, and delete users
+  - API key management integrated in the user editing screen (users can have their API key generated/updated)
+  - Container selection via checkboxes (for both group creation and user management)
 
-- **REST-API:**
-  - **/api/control** – Steuert einen einzelnen Container (start/stop)
-  - **/api/status** – Gibt den Status eines einzelnen Containers zurück
-  - **/api/control_group** – Steuert alle Container einer Gruppe (start/stop)
-  - **/api/group_status** – Gibt den Status einer Gruppe zurück
+- **REST API**
+  - `/api/control` – Control a single container (start/stop)
+  - `/api/status` – Retrieve the status of a single container
+  - `/api/control_group` – Control all containers in a group (start/stop)
+  - `/api/group_status` – Retrieve the status of a group (e.g., running/total)
 
-- **Home Assistant Integration:**
-  - RESTful Commands und REST-Sensoren für die Container- und Gruppensteuerung
-  - Template Switches, die den aktuellen Status anzeigen und per Knopfdruck Container steuern
-  - Beispielkonfigurationen für REST-Commands, Sensoren und Template Switches
+- **Home Assistant Integration**
+  - RESTful commands and sensors for container and group control
+  - Template switches that display the current state and trigger actions
+  - Example YAML configuration provided for integration
 
 ## Installation
 
