@@ -21,9 +21,9 @@ Docker Controller is a web-based tool for managing and controlling Docker contai
   - `/api/status` – Retrieve the status of a single container
   - `/api/control_group` – Control all containers in a group (start/stop)
   - `/api/group_status` – Retrieve the status of a group (e.g. number of running containers vs. total)
-- ***Access Control:***
-  All API endpoints validate the provided username and API key and ensure that a user can only control containers they are assigned to (unless the user is an admin).
-  Home Assistant Integration
+  - ***Access Control:***
+    All API endpoints validate the provided username and API key and ensure that a user can only control containers they are assigned to (unless the user is an admin).
+    Home Assistant Integration
 
 - **Home Assistant Integration**
   - RESTful commands and sensors for container and group control
