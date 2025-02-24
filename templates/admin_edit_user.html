@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Edit User</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/darkly.min.css">
 </head>
 <body>
   <div class="container">
@@ -26,7 +26,7 @@
       </div>
       <div class="mb-3">
         {{ form.containers.label(class="form-label") }}
-        {{ form.containers(class="form-select", multiple="multiple") }}
+        {{ form.containers(class="form-check") }}
       </div>
       <div class="mb-3">
         <label class="form-label">API Key</label>
