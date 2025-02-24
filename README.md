@@ -5,16 +5,16 @@ Docker Controller is a web-based tool for managing and controlling Docker contai
 ## Features
 
 - **Web UI**
-- Container & Group Control:
-  Start or stop individual containers or entire groups with a single click.
-- Advanced Management:
-  Edit containers and groups, set custom startup orders and delays to ensure dependencies (e.g. databases) are started before dependent services.
-- User Management:
-  Create, edit, and delete users. Assign specific containers to each user so that only authorized users can control certain containers.
-- API Key Management:
-  Generate and update API keys directly in the user management interface. This key is required for API calls and is used to verify that the user is allowed to control a given container.
-- Intuitive Selection:
-  Choose containers via checkboxes (both for group creation and user management) for a clearer, more efficient interface.
+  - Container & Group Control:
+    Start or stop individual containers or entire groups with a single click.
+  - Advanced Management:
+    Edit containers and groups, set custom startup orders and delays to ensure dependencies (e.g. databases) are started before dependent services.
+  - User Management:
+    Create, edit, and delete users. Assign specific containers to each user so that only authorized users can control certain containers.
+  - API Key Management:
+    Generate and update API keys directly in the user management interface. This key is required for API calls and is used to verify that the user is allowed to control a given container.
+  - Intuitive Selection:
+    Choose containers via checkboxes (both for group creation and user management) for a clearer, more efficient interface.
 
 - **REST API**
   - `/api/control` – Control a single container (start/stop)
