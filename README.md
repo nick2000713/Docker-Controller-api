@@ -175,33 +175,52 @@ Define REST sensors to monitor the status:
 **Template Switch**
 Create a template switch to combine the status and control functionality:
 
+    # Template Switch that uses the override (if set within the last 10 seconds) or the actual sensor value
     switch:
       - platform: template
         switches:
-          YOUR_NAME_OF_STATUS:
-            friendly_name: "NAME_OF_SWITCH"
-            value_template: "{{ is_state('sensor.<YOUR_NAME_OF_STATUS>', 'running') }}"
+          my_container:
+            friendly_name: "My Container"
+            value_template: >
+              {%- set override = states('input_select.my_container_override') -%}
+              {%- if override != "none" -%}
+                {{ override }}
+              {%- else -%}
+                {%- if states('sensor.my_container_status') | lower | trim == 'running' -%}
+                  on
+                {%- else -%}
+                  off
+                {%- endif -%}
+              {%- endif -%}
             turn_on:
-              service: rest_command.start_<YOUR_NAME_OF_CONTAINER>
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.my_container_override
+                  option: "on"
+              - service: rest_command.start_my_container
             turn_off:
-              service: rest_command.stop_<YOUR_NAME_OF_CONTAINER>
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.my_container_override
+                  option: "off"
+              - service: rest_command.stop_my_container
 
 **Complete Example with State Override**
 
-    # Input to Override-State
+    # Input Select for the override state
     input_select:
-      crafty_command_override:
-        name: "Crafty Command Override"
+      my_container_override:
+        name: "My Container Command Override"
         options:
-          - none
-          - on
-          - off
-        initial: none
+          - "none"
+          - "on"
+          - "off"
+        initial: "none"
     
-    # REST-Commands for Crafty
+    # REST Commands for controlling the container
     rest_command:
-      start_crafty:
-        url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control"
+      start_my_container:
+        url: "http://YOUR_IP:PORT/api/control"
         method: POST
         headers:
           Content-Type: application/json
@@ -212,8 +231,8 @@ Create a template switch to combine the status and control functionality:
             "container_id": CONTAINER_ID,
             "action": "start"
           }
-      stop_crafty:
-        url: "http://<DOCKER_CONTROLLER_IP>:5000/api/control"
+      stop_my_container:
+        url: "http://YOUR_IP:PORT/api/control"
         method: POST
         headers:
           Content-Type: application/json
@@ -225,47 +244,65 @@ Create a template switch to combine the status and control functionality:
             "action": "stop"
           }
     
-    # REST-Sensor, status of crafty
+    # REST Sensor to check the container's status (updates every 10 seconds)
     sensor:
       - platform: rest
-        resource: "http://<DOCKER_CONTROLLER_IP>:5000/api/status?container_id=CONTAINER_ID&username=YOUR_USERNAME&api_key=YOUR_API_KEY"
-        name: "crafty_status"
+        resource: "http://YOUR_IP:PORT/api/status?container_id=CONTAINER_ID&username=YOUR_USERNAME&api_key=YOUR_API_KEY"
+        name: "my_container_status"
         value_template: "{{ value_json.status }}"
         headers:
           Content-Type: application/json
-        scan_interval: 60
+        scan_interval: 10
     
-    # Template Switch, with Override and sensor status
+    # Template Switch that uses the override (if set within the last 10 seconds) or the actual sensor value
     switch:
       - platform: template
         switches:
-          crafty_container:
-            friendly_name: "Crafty Container"
+          my_container:
+            friendly_name: "My Container"
             value_template: >
-              {% set override = states('input_select.crafty_command_override') %}
-              {% if override != 'none' %}
+              {%- set override = states('input_select.my_container_override') -%}
+              {%- if override != "none" -%}
                 {{ override }}
-              {% else %}
-                {% if is_state('sensor.crafty_status', 'running') %}
+              {%- else -%}
+                {%- if states('sensor.my_container_status') | lower | trim == 'running' -%}
                   on
-                {% else %}
+                {%- else -%}
                   off
-                {% endif %}
-              {% endif %}
+                {%- endif -%}
+              {%- endif -%}
             turn_on:
               - service: input_select.select_option
                 data:
-                  entity_id: input_select.crafty_command_override
-                  option: on
-              - service: rest_command.start_crafty
+                  entity_id: input_select.my_container_override
+                  option: "on"
+              - service: rest_command.start_my_container
             turn_off:
               - service: input_select.select_option
                 data:
-                  entity_id: input_select.crafty_command_override
-                  option: off
-              - service: rest_command.stop_crafty
+                  entity_id: input_select.my_container_override
+                  option: "off"
+              - service: rest_command.stop_my_container
     
-
+    # Automation to reset the override 10 seconds after a manual change and update the sensor
+    automation:
+      - alias: "Reset My Container Command Override"
+        trigger:
+          - platform: state
+            entity_id: input_select.my_container_override
+            to: "on"
+          - platform: state
+            entity_id: input_select.my_container_override
+            to: "off"
+        action:
+          - delay: "00:00:10"
+          - service: input_select.select_option
+            data:
+              entity_id: input_select.my_container_override
+              option: "none"
+          - service: homeassistant.update_entity
+            target:
+              entity_id: sensor.my_container_status
 
 **Lovelace Dashboard**
 Open your Home Assistant dashboard.
