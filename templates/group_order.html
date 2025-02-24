@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Group Containers</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-4">Order Group Containers: {{ group.name }}</h1>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">Back to Home</a>
+    <form method="post">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Container</th>
+            <th>Order</th>
+            <th>Delay (seconds)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for gc in group_containers %}
+          <tr>
+            <td>{{ gc.container.display_name }}</td>
+            <td>
+              <input type="number" name="order_{{ gc.container.id }}" value="{{ gc.startup_order }}" class="form-control">
+            </td>
+            <td>
+              <input type="number" name="delay_{{ gc.container.id }}" value="{{ gc.delay }}" class="form-control">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</body>
+</html>

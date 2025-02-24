@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back to Home</a>
+    <h1 class="mt-4">User Management</h1>
+    <a href="{{ url_for('new_user_view') }}" class="btn btn-primary mb-3">Create New User</a>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Accessible Containers</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.role }}</td>
+          <td>
+            {% for cont in user.containers %}
+              {{ cont.display_name }}<br>
+            {% endfor %}
+          </td>
+          <td>
+            <a href="{{ url_for('admin_edit_user_view', user_id=user.id) }}" class="btn btn-warning btn-sm">Edit</a>
+            <form action="{{ url_for('admin_delete_user_view', user_id=user.id) }}" method="post" style="display:inline;">
+              <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete user?');">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

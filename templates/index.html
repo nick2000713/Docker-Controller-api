@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Docker Controller</title>
+  <!-- Using Darkly theme for a dark, modern look -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+  <style>
+    .status-dot {
+      font-size: 20px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+    table {
+      border-top: 2px solid #333;
+      border-bottom: 2px solid #333;
+      border-collapse: collapse;
+    }
+    table tr td, table tr th {
+      border: none;
+      padding: 0.75rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      margin: 0.2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+      font-weight: 400;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navbar: Die Marke verweist als Home-Link -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Docker Controller</a>
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav me-auto">
+            {% if current_user.role == 'admin' %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_users_view') }}">Users</a></li>
+            {% endif %}
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('logout_view') }}">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Flash-Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    {% if current_user.role == 'admin' %}
+    <div class="mb-3 mt-3 text-center">
+      <a href="{{ url_for('new_container_view') }}" class="btn btn-primary">Add New Container</a>
+      <a href="{{ url_for('new_group_view') }}" class="btn btn-secondary">Create New Group</a>
+      <a href="{{ url_for('container_order_view') }}" class="btn btn-info">Order Containers</a>
+      <a href="{{ url_for('group_order_all_view') }}" class="btn btn-info">Order Groups</a>
+    </div>
+    {% endif %}
+    
+    <h2>Containers</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Icon</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Action</th>
+          {% if current_user.role == 'admin' %}
+            <th>Edit</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for container in individual_containers %}
+        <tr>
+          <td>
+            {% if container.icon %}
+              <img src="{{ url_for('data_static', filename=container.icon) }}" alt="{{ container.display_name }}" width="50">
+            {% else %}
+              No Icon
+            {% endif %}
+          </td>
+          <td>{{ container.display_name }}</td>
+          <td>{{ container_status[container.id] }}</td>
+          <td>
+            <form action="{{ url_for('control_view') }}" method="post">
+              <input type="hidden" name="container_id" value="{{ container.id }}">
+              {% if container_status[container.id] != 'running' %}
+                <input type="hidden" name="action" value="start">
+                <button type="submit" class="btn btn-success">Start</button>
+              {% else %}
+                <input type="hidden" name="action" value="stop">
+                <button type="submit" class="btn btn-danger">Stop</button>
+              {% endif %}
+            </form>
+          </td>
+          {% if current_user.role == 'admin' %}
+          <td>
+            <a href="{{ url_for('edit_container_view', container_id=container.id) }}" class="btn btn-warning">Edit</a>
+            <form action="{{ url_for('delete_container_view', container_id=container.id) }}" method="post" style="display:inline;">
+              <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Delete container?');">Delete</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <h2>Groups</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Icon</th>
+          <th>Group Name</th>
+          <th>Status (running/total)</th>
+          <th>Containers</th>
+          <th>Action</th>
+          {% if current_user.role == 'admin' %}
+            <th>Edit</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in groups %}
+        <tr>
+          <td>
+            {% if group.icon %}
+              <img src="{{ url_for('data_static', filename=group.icon) }}" alt="{{ group.name }}" width="50">
+            {% else %}
+              No Icon
+            {% endif %}
+          </td>
+          <td>{{ group.name }}</td>
+          <td>{{ group_status[group.id] }}</td>
+          <td>
+            {% for gc in group.group_containers|sort(attribute='startup_order') %}
+              {% set st = group_container_status[group.id][gc.container.id] %}
+              {% if st == 'running' %}
+                <span class="status-dot" style="color:green;">&#9679;</span>
+              {% else %}
+                <span class="status-dot" style="color:red;">&#9679;</span>
+              {% endif %}
+              {{ gc.container.display_name }}<br>
+            {% endfor %}
+          </td>
+          <td>
+            <form action="{{ url_for('control_group_view') }}" method="post">
+              <input type="hidden" name="group_id" value="{{ group.id }}">
+              <button type="submit" name="action" value="start" class="btn btn-success">Start All</button>
+              <button type="submit" name="action" value="stop" class="btn btn-danger">Stop All</button>
+            </form>
+          </td>
+          {% if current_user.role == 'admin' %}
+          <td>
+            <a href="{{ url_for('group_order_view', group_id=group.id) }}" class="btn btn-info">Order</a>
+            <form action="{{ url_for('delete_group_view', group_id=group.id) }}" method="post" style="display:inline;">
+              <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Delete group?');">Delete</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

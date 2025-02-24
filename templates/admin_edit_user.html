@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit User</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <a href="{{ url_for('admin_users_view') }}" class="btn btn-secondary mt-3">Back to User Management</a>
+    <h1 class="mt-4">Edit User: {{ user.username }}</h1>
+    <form method="post">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
+        <small class="form-text text-muted">Fill in only if you want to change the password.</small>
+      </div>
+      <div class="mb-3">
+        {{ form.role.label(class="form-label") }}
+        {{ form.role(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.containers.label(class="form-label") }}
+        {{ form.containers(class="form-select", multiple="multiple") }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">API Key</label>
+        <input type="text" class="form-control" value="{{ user.api_key or 'No API key generated' }}" readonly>
+      </div>
+      <div class="mb-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('admin_users_view') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ url_for('generate_api_key_for_user', user_id=user.id) }}" class="btn btn-info">Generate New API Key</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
