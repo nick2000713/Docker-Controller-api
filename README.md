@@ -1,6 +1,7 @@
 # Docker Controller
 
-Docker Controller is a web-based tool for managing and controlling Docker containers. The application offers a user-friendly interface to start, stop, and monitor individual containers or groups of containers. It also provides a REST API, making it easy to integrate with systems like Home Assistant.
+Docker Controller is a web-based tool for managing and controlling Docker containers. The application offers a user-friendly interface to start, stop, and monitor individual containers or groups of containers. It also provides a REST API, making it easy to integrate with systems like Home Assistant. 
+NOTE: THIS PROJECT WAS ENTIRELY BUILT WITH CHATGPT. Please refrain from submitting pull requests or similar contributions—simply share the code with ChatGPT. I have zero programming skills, and it's nothing short of a miracle that this shit works.
 
 ## Features
 
