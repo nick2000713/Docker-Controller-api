@@ -52,6 +52,9 @@ Admin Interface:
 As an administrator, you can manage containers, groups, and users. When editing a user, you can select which containers the user has access to using checkboxes. You can also generate or update the user’s API key directly in the user edit screen.
 
 ### REST API Endpoints
+**Container & Group IDs:**
+The API uses numerical IDs for containers and groups. To find these IDs, open the edit page for a container or group – the URL will include the ID (e.g., /container/edit/3 means the container ID is 3).
+Security:
 
 **Control a Single Container**
 - URL: /api/control
